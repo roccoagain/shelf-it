@@ -14,5 +14,6 @@ struct ShelfItApp: App {
             ContentView()
         }
         .windowStyle(.volumetric)
+        .defaultSize(width: 2, height: 2, depth: 2, in: .meters)
     }
 }

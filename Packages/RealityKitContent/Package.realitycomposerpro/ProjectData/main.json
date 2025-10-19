@@ -2,7 +2,15 @@
   "pathsToIds" : {
     "\/RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/GridMaterial.usda" : "70F99620-18FE-438F-B2D5-5E0DA02AB759",
     "\/RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Scene.usda" : "0A9B4653-B11E-4D6A-850E-C6FCB621626C",
+    "\/RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/item.usda" : "2535FA56-833F-4492-9780-B11FB2F8F8D4",
     "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/GridMaterial.usda" : "388995CA-80FC-432E-BA88-78270E4EFD9D",
-    "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Scene.usda" : "90C576A0-F90A-43B8-9998-14918A66F863"
+    "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/Scene.usda" : "90C576A0-F90A-43B8-9998-14918A66F863",
+    "RealityKitContent\/Sources\/RealityKitContent\/RealityKitContent.rkassets\/item.usda" : "D774AA01-8D13-406F-B262-1037C803175E"
+  },
+  "projectID" : -5075243453554638834,
+  "uuidToIntID" : {
+    "2535FA56-833F-4492-9780-B11FB2F8F8D4" : 7326702431298063975,
+    "90C576A0-F90A-43B8-9998-14918A66F863" : 4713440695759059032,
+    "D774AA01-8D13-406F-B262-1037C803175E" : 1793826702354277371
   }
 }

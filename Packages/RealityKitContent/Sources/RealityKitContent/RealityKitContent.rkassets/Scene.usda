@@ -12,19 +12,46 @@ def Xform "Root"
         bindMaterialAs = "weakerThanDescendants"
     )
 
-    def Sphere "Sphere" (
+    def "GridMaterial" (
         active = true
-        prepend apiSchemas = ["MaterialBindingAPI"]
+        references = @Materials/GridMaterial.usda@
     )
     {
-        rel material:binding = </Root/GridMaterial/GridMaterial> (
-            bindMaterialAs = "weakerThanDescendants"
-        )
-        double radius = 0.1
-        quatf xformOp:orient = (1, 0, 0, 0)
         float3 xformOp:scale = (1, 1, 1)
-        float3 xformOp:translate = (0, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+    }
+
+    def "ShelfPrototype" (
+        active = true
+        customData = {
+            float3 rotationEulerHint = (-1.568372, 0, 0)
+        }
+        prepend references = @ShelfPrototype.usdc@
+    )
+    {
+        quatf xformOp:orient = (0.70796335, -0.7062491, 0, 0)
+        float3 xformOp:scale = (0.43479478, 0.4347948, 0.4347948)
+        float3 xformOp:translate = (2.7241184e-8, -0.36281168, -0.0008794209)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        over "Cube"
+        {
+            over "Cube" (
+                prepend apiSchemas = ["MaterialBindingAPI"]
+            )
+            {
+                rel material:binding = </Root/ShelfPrototype/Cube/Cube/MaplePlywood> (
+                    bindMaterialAs = "weakerThanDescendants"
+                )
+
+                def "MaplePlywood" (
+                    active = true
+                    prepend references = @MaplePlywood.usdz@
+                )
+                {
+                }
+            }
+        }
 
         def RealityKitComponent "Collider"
         {
@@ -35,25 +62,15 @@ def Xform "Root"
 
             def RealityKitStruct "Shape"
             {
-                float3 extent = (0.2, 0.2, 0.2)
-                float radius = 0.1
-                token shapeType = "Sphere"
+                float3 extent = (2, 0.99999994, 1)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                    float3 position = (0, 0, 0.5)
+                }
             }
         }
-
-        def RealityKitComponent "InputTarget"
-        {
-            uniform token info:id = "RealityKit.InputTarget"
-        }
-    }
-
-    def "GridMaterial" (
-        active = true
-        references = @Materials/GridMaterial.usda@
-    )
-    {
-        float3 xformOp:scale = (1, 1, 1)
-        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
     }
 }
 
