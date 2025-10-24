@@ -12,30 +12,30 @@ struct ContentView: View {
         ZStack {
             RealityView { content in
                 // Load the main scene (e.g., a table from Reality Composer Pro)
-                if let scene = try? await Entity(named: "table", in: realityKitContentBundle) {
-                    
-                    
-                    
-                    
-                    
-                    
-                    content.add(scene)
-                    sceneController.sceneRoot = scene
-                } else {
-                    print("Could not load ShelfScene")
-                }
+                await sceneController.initilizeScene(into: content)
+                
+                
             } update: { content in
-                if sceneController.addNewObject {
-                    sceneController.addObject(to: content)
-                    sceneController.addNewObject = false
-                }
             }
+            .gesture(
+                DragGesture()
+                    .targetedToAnyEntity()
+                    .onChanged({ value in
+                        let entity = value.entity
+                        entity.components.set(PhysicsBodyComponent(mode: .kinematic))
+                        // move entity based on drag
+                        entity.position = value.convert(value.location3D, from: .local, to: entity.parent!)
+                    })
+                    .onEnded({ value in
+                        let entity = value.entity
+                        entity.components.set(PhysicsBodyComponent(mode: .dynamic))
+                    }))
             
-            //Front of volume UI
+            
             VStack {
                 // UI for adding objects
                 Button("Add To-Do Item") {
-                    sceneController.addNewObject = true
+                    sceneController.addObject()
                 }
                 .buttonStyle(.borderedProminent)
                 .padding(12)

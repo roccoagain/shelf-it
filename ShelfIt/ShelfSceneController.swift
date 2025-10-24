@@ -12,8 +12,20 @@ class ShelfSceneController: ObservableObject {
     var sceneRoot: Entity?
     var objectCount = 0
     
+    // MARK: - Setup scene
+    
+    func initilizeScene(into content: RealityViewContent) async {
+        guard sceneRoot == nil else { return }
+        
+        if let rootEntity = try? await Entity(named: "table", in: realityKitContentBundle) {
+            sceneRoot = rootEntity
+            content.add(rootEntity)
+        }
+        
+    }
+    
     // MARK: - Add New Object to Scene
-    func addObject(to content: RealityViewContent) {
+    func addObject() {
         guard let root = sceneRoot else {
             print("Scene root not available")
             return
@@ -35,8 +47,8 @@ class ShelfSceneController: ObservableObject {
         ]
         
         // Physics and input
-        
-        entity.generateCollisionShapes(recursive: false)
+        let collision = CollisionComponent(shapes: [.generateSphere(radius: radius)])
+        entity.components.set(collision)
         var body = PhysicsBodyComponent(mode: .dynamic)
         body.isAffectedByGravity = true
         body.linearDamping = 0.05
@@ -48,6 +60,7 @@ class ShelfSceneController: ObservableObject {
         entity.components.set(InputTargetComponent())
         
         root.addChild(entity)
+        
         // Nudge with a small lateral impulse so balls don't stack perfectly
         let impulse = SIMD3<Float>(Float.random(in: -0.01...0.01), 0, Float.random(in: -0.01...0.01))
         entity.applyLinearImpulse(impulse, relativeTo: nil)
