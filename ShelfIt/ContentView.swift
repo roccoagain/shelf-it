@@ -1,67 +1,33 @@
-//
-//  ContentView.swift
-//  ShelfIt
-//
-//  Created by Jack Miller on 10/14/25.
-//
-
 import SwiftUI
 import RealityKit
 import RealityKitContent
 
 struct ContentView: View {
-
-    @State private var enlarge = false
-    @State private var sceneAnchor: Entity?
-    @State private var sceneLoadError: String?
-
-    private let sceneController = ShelfSceneController()
+    @StateObject var sceneController = ShelfSceneController()
 
     var body: some View {
         VStack {
             RealityView { content in
-                if let cachedScene = sceneAnchor {
-                    if cachedScene.parent == nil {
-                        content.add(cachedScene)
-                    }
-                    return
-                }
-
-                do {
-                    let scene = try await sceneController.makeScene()
-                    sceneAnchor = scene
+                // Load the main scene (e.g., a table from Reality Composer Pro)
+                if let scene = try? await Entity(named: "table", in: realityKitContentBundle) {
                     content.add(scene)
-                } catch {
-                    sceneLoadError = error.localizedDescription
+                    sceneController.sceneRoot = scene
+                } else {
+                    print("Could not load ShelfScene")
                 }
-            } update: { _ in
-                if let scene = sceneAnchor {
-                    let uniformScale: Float = enlarge ? 1.4 : 1.0
-                    scene.transform.scale = [uniformScale, uniformScale, uniformScale]
+            } update: { content in
+                if sceneController.addNewObject {
+                    sceneController.addObject(to: content)
+                    sceneController.addNewObject = false
                 }
             }
-            .gesture(TapGesture().targetedToAnyEntity().onEnded { _ in
-                enlarge.toggle()
-            })
 
-            VStack {
-                if let errorDescription = sceneLoadError {
-                    Text(errorDescription)
-                        .foregroundStyle(.red)
-                        .multilineTextAlignment(.center)
-                        .padding(.bottom, 8)
-                }
-
-                Button {
-                    enlarge.toggle()
-                } label: {
-                    Text(enlarge ? "Reduce RealityView Content" : "Enlarge RealityView Content")
-                }
-                .animation(.none, value: 0)
-                .fontWeight(.semibold)
+            // UI for adding objects
+            Button("Add To-Do Item") {
+                sceneController.addNewObject = true
             }
+            .buttonStyle(.borderedProminent)
             .padding()
-            .glassBackgroundEffect()
         }
     }
 }
@@ -69,3 +35,4 @@ struct ContentView: View {
 #Preview(windowStyle: .volumetric) {
     ContentView()
 }
+

@@ -44,6 +44,47 @@
       }
     ]
   },
+  "606009E1-FB77-44F9-ABED-8FF371E6E927" : {
+    "objectMetadataList" : [
+      [
+        "606009E1-FB77-44F9-ABED-8FF371E6E927",
+        "Root",
+        "Scene",
+        "GridMaterial"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "606009E1-FB77-44F9-ABED-8FF371E6E927",
+        "Root",
+        "ShelfPrototype",
+        "Cube"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "606009E1-FB77-44F9-ABED-8FF371E6E927",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "606009E1-FB77-44F9-ABED-8FF371E6E927",
+        "Root",
+        "Scene"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  },
   "70F99620-18FE-438F-B2D5-5E0DA02AB759" : {
     "objectMetadataList" : [
       [
