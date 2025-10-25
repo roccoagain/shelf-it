@@ -7,6 +7,8 @@ import Combine
 class ShelfSceneController: ObservableObject {
     // MARK: - Published State
     @Published var addNewObject = false
+    @Published var selectedEntity: Entity?
+
     
     // MARK: - Scene References
     var sceneRoot: Entity?

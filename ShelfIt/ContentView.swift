@@ -7,29 +7,52 @@ struct ContentView: View {
     
     private let volumeDepth: Float = 0.60   // meters (example)
     private let frontMargin: Float = 0.02
-
+    
     var body: some View {
         ZStack {
-            RealityView { content in
+            RealityView { content, attachments in
                 // Load the main scene (e.g., a table from Reality Composer Pro)
                 await sceneController.initilizeScene(into: content)
-                
-                
-            } update: { content in
+            } update: { content, attachments in
+                // Update logic if needed
+                guard let overlay = attachments.entity(for: "todoOverlay") else {return}
+                if let selectedEntity = sceneController.selectedEntity {
+                    overlay.setParent(selectedEntity)
+                    overlay.position = [0,0.12,0]
+                }
+            } attachments: {
+                Attachment(id: "todoOverlay") {
+                    todoView()   // or pass your data model
+                        .padding(12)
+                        .background(
+                            .ultraThinMaterial,
+                            in: RoundedRectangle(cornerRadius: 14)
+                        )
+                }
             }
             .gesture(
                 DragGesture()
                     .targetedToAnyEntity()
-                    .onChanged({ value in
+                    .onChanged { value in
                         let entity = value.entity
                         entity.components.set(PhysicsBodyComponent(mode: .kinematic))
                         // move entity based on drag
-                        entity.position = value.convert(value.location3D, from: .local, to: entity.parent!)
-                    })
-                    .onEnded({ value in
+                        if let parent = entity.parent {
+                            entity.position = value.convert(value.location3D, from: .local, to: parent)
+                        }
+                    }
+                    .onEnded { value in
                         let entity = value.entity
                         entity.components.set(PhysicsBodyComponent(mode: .dynamic))
-                    }))
+                    }
+            )
+            .simultaneousGesture(
+                TapGesture()
+                    .targetedToAnyEntity()
+                    .onEnded { value in
+                        sceneController.selectedEntity = value.entity
+                    }
+            )
             
             
             VStack {
@@ -39,9 +62,9 @@ struct ContentView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .padding(12)
-            }.glassBackgroundEffect()
+            }
+            .glassBackgroundEffect()
         }
-        
     }
 }
 
