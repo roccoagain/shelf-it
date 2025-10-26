@@ -19,16 +19,30 @@ struct ContentView: View {
                 if let selectedEntity = sceneController.selectedEntity {
                     overlay.setParent(selectedEntity)
                     overlay.position = [0,0.12,0]
+                } else {
+                    overlay.removeFromParent()
                 }
             } attachments: {
                 Attachment(id: "todoOverlay") {
-                    todoView()   // or pass your data model
-                        .padding(12)
-                        .background(
-                            .ultraThinMaterial,
-                            in: RoundedRectangle(cornerRadius: 14)
-                        )
-                }
+                        HStack {
+                            Button(action: {
+                                // TODO: save changes here later
+                                sceneController.selectedEntity = nil;
+                            }) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.blue)
+                            }
+
+                            Button(action: {
+                                sceneController.selectedEntity = nil;
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.title)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                    }
             }
             .gesture(
                 DragGesture()
