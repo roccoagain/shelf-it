@@ -8,8 +8,55 @@
 import Foundation
 import RealityKit
 
-enum FigurineKind: String, CaseIterable, Codable {
-    case cube, sphere, cylinder
+struct FigurinePrototype: Identifiable, Hashable {
+    enum Geometry: Hashable {
+        case primitive(Primitive)
+        case asset(name: String)
+    }
+    
+    enum Primitive: String, CaseIterable, Hashable {
+        case cube
+        case sphere
+        case cylinder
+    }
+    
+    let id: String
+    let title: String
+    let geometry: Geometry
+    let previewAssetName: String?
+    
+    init(id: String, title: String, geometry: Geometry, previewAssetName: String? = nil) {
+        self.id = id
+        self.title = title
+        self.geometry = geometry
+        if let previewAssetName {
+            self.previewAssetName = previewAssetName
+        } else {
+            switch geometry {
+            case .primitive:
+                self.previewAssetName = nil
+            case .asset(let name):
+                self.previewAssetName = name
+            }
+        }
+    }
+}
+
+enum FigurineCatalog {
+    static let all: [FigurinePrototype] = [
+        FigurinePrototype(id: "robot", title: "Robot", geometry: .asset(name: "robot")),
+        FigurinePrototype(id: "cube", title: "Cube", geometry: .primitive(.cube)),
+        FigurinePrototype(id: "sphere", title: "Sphere", geometry: .primitive(.sphere)),
+        FigurinePrototype(id: "cylinder", title: "Cylinder", geometry: .primitive(.cylinder))
+    ]
+    
+    private static let lookup: [FigurinePrototype.ID: FigurinePrototype] = {
+        Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0) })
+    }()
+    
+    static func prototype(for id: FigurinePrototype.ID) -> FigurinePrototype? {
+        lookup[id]
+    }
 }
 
 struct Vec3: Codable { var x, y, z: Float }
@@ -18,7 +65,7 @@ struct HSBA: Codable { var h, s, b, a: Float }
 
 struct FigurineRecord: Codable, Identifiable {
     var id: UUID
-    var kind: FigurineKind
+    var prototypeID: FigurinePrototype.ID
     var name: String
     var position: Vec3
     var rotation: Quat
