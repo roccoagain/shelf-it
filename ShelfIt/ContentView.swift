@@ -43,12 +43,10 @@ struct ContentView: View {
                                 .buttonStyle(.plain)
                             }
                             .padding(.horizontal, 12)
-
+                            
                             Button {
-                                if let parent = selected.parent {
-                                    selected.removeFromParent()
-                                    sceneController.selectedEntity = nil
-                                } else {
+                                if let selected = sceneController.selectedEntity {
+                                    sceneController.remove(figurine: selected)
                                     sceneController.selectedEntity = nil
                                 }
                             } label: {
@@ -80,6 +78,7 @@ struct ContentView: View {
                     .onEnded { value in
                         let entity = value.entity
                         entity.components.set(PhysicsBodyComponent(mode: .dynamic))
+                        sceneController.persistTransform(for: entity)
                     }
             )
             .simultaneousGesture(
