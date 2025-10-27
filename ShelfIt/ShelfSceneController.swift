@@ -105,6 +105,21 @@ class ShelfSceneController: ObservableObject {
         }
     }
     
+    @MainActor
+    func removeAll() {
+        guard let root = sceneRoot else { return }
+
+        // Snapshot the list before mutating it
+        let toDelete = root.children.filter { $0.components[FigurineIDComponent.self] != nil }
+
+        toDelete.forEach { $0.removeFromParent() }
+
+        records.removeAll()
+        selectedEntity = nil
+        FigurineStore.shared.save(records)
+    }
+
+    
     private func buildEntity(from rec: FigurineRecord) -> ModelEntity {
         let mesh: MeshResource = switch rec.kind {
         case .cube: .generateBox(size: 0.06)

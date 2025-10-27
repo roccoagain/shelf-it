@@ -30,7 +30,7 @@ struct FigurineIDComponent: Component { var id: UUID }
 
 final class FigurineStore {
     static let shared = FigurineStore()
-    private init() {}   // Added
+    private init() {}
 
     private let url: URL = {
         FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]

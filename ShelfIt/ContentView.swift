@@ -92,13 +92,21 @@ struct ContentView: View {
             
             if !showPickerPanel {
                 VStack {
-                    // UI for adding objects
-                    Button("Add To-Do Item") {
-                        withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
-                            showPickerPanel = true
+                    HStack {
+                        Button("Add To-Do Item") {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
+                                showPickerPanel = true
+                            }
                         }
+                        .buttonStyle(.borderedProminent)
+                        
+                        Button(role: .destructive) {
+                            sceneController.removeAll()          // NEW
+                        } label: {
+                            Text("Clear All")
+                        }
+                        .buttonStyle(.bordered)
                     }
-                    .buttonStyle(.borderedProminent)
                     .padding(12)
                 }
                 .glassBackgroundEffect()
