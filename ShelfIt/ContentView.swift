@@ -16,7 +16,7 @@ struct ContentView: View {
                 await sceneController.initilizeScene(into: content)
             } update: { content, attachments in
                 // Update logic if needed
-                guard let overlay = attachments.entity(for: "todoOverlay") else {return}
+                guard let overlay = attachments.entity(for: "figurinePopup") else {return}
                 if let selectedEntity = sceneController.selectedEntity {
                     overlay.setParent(selectedEntity)
                     overlay.position = [0,0.12,0]
@@ -24,26 +24,47 @@ struct ContentView: View {
                     overlay.removeFromParent()
                 }
             } attachments: {
-                Attachment(id: "todoOverlay") {
-                        HStack {
-                            Button(action: {
-                                // TODO: save changes here later
-                                sceneController.selectedEntity = nil;
-                            }) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.blue)
+                Attachment(id: "figurinePopup") {
+                    if let selected = sceneController.selectedEntity {
+                        VStack(spacing: 12) {
+                            HStack(alignment: .firstTextBaseline) {
+                                Text(selected.name.isEmpty ? "Selected Item" : selected.name)
+                                    .font(.headline)
+                                    .padding(.vertical, 4)
+                                Spacer(minLength: 0)
+                                Button {
+                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
+                                        sceneController.selectedEntity = nil
+                                    }
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .imageScale(.large)
+                                }
+                                .buttonStyle(.plain)
                             }
+                            .padding(.horizontal, 12)
 
-                            Button(action: {
-                                sceneController.selectedEntity = nil;
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .font(.title)
-                                    .foregroundColor(.gray)
+                            Button {
+                                if let parent = selected.parent {
+                                    selected.removeFromParent()
+                                    sceneController.selectedEntity = nil
+                                } else {
+                                    sceneController.selectedEntity = nil
+                                }
+                            } label: {
+                                Text("Mark Completed")
+                                    .font(.title3.weight(.semibold))
+                                    .frame(maxWidth: .infinity)
                             }
+                            .buttonStyle(.borderedProminent)
+                            .tint(.blue)
                         }
+                        .padding(20)
+                        .background(.thinMaterial, in: .rect(cornerRadius: 16))
+                        .glassBackgroundEffect()
+                        .frame(maxWidth: 360)
                     }
+                }
             }
             .gesture(
                 DragGesture()
