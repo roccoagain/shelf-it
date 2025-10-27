@@ -9,7 +9,6 @@ import SwiftUI
 
 struct welcomeView: View {
     var body: some View {
-        ZStack {
             VStack {
                 Text("Welcome to ShelfIt!")
                     .font(.largeTitle)
@@ -18,7 +17,6 @@ struct welcomeView: View {
                     .font(.body)
                     .padding()
             }
-        }
         .glassBackgroundEffect()
             
     }
