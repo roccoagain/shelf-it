@@ -30,42 +30,22 @@ struct ContentView: View {
                 }
             } attachments: {
                 Attachment(id: "figurinePopup") {
-                    if let selected = sceneController.selectedEntity {
-                        VStack(spacing: 12) {
-                            HStack(alignment: .firstTextBaseline) {
-                                Text(selected.name.isEmpty ? "Selected Item" : selected.name)
-                                    .font(.headline)
-                                    .padding(.vertical, 4)
-                                Spacer(minLength: 0)
-                                Button {
-                                    withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
-                                        sceneController.selectedEntity = nil
-                                    }
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .imageScale(.large)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .padding(.horizontal, 12)
-                            
-                            Button {
-                                if let selected = sceneController.selectedEntity {
-                                    sceneController.remove(figurine: selected)
+                    if let selected = sceneController.selectedEntity,
+                       let figurineID = sceneController.figurineID(for: selected) {
+                        FigurinePopupView(
+                            figurineID: figurineID,
+                            onClose: {
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
                                     sceneController.selectedEntity = nil
                                 }
-                            } label: {
-                                Text("Mark Completed")
-                                    .font(.title3.weight(.semibold))
-                                    .frame(maxWidth: .infinity)
+                            },
+                            onMarkCompleted: {
+                                sceneController.remove(figurine: selected)
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
+                                    sceneController.selectedEntity = nil
+                                }
                             }
-                            .buttonStyle(.borderedProminent)
-                            .tint(.blue)
-                        }
-                        .padding(20)
-                        .background(.thinMaterial, in: .rect(cornerRadius: 16))
-                        .glassBackgroundEffect()
-                        .frame(maxWidth: 360)
+                        )
                     }
                 }
             }
@@ -113,6 +93,115 @@ struct ContentView: View {
             }
             .glassBackgroundEffect()
         }
+    }
+}
+
+private struct FigurinePopupView: View {
+    @EnvironmentObject private var sceneController: ShelfSceneController
+    
+    let figurineID: UUID
+    let onClose: () -> Void
+    let onMarkCompleted: () -> Void
+    
+    private var metadataValue: ShelfSceneController.FigurineMetadata? {
+        sceneController.metadata(for: figurineID)
+    }
+    
+    private var titleBinding: Binding<String> {
+        guard metadataValue != nil else {
+            return .constant("")
+        }
+        return Binding(
+            get: { sceneController.metadata(for: figurineID)?.title ?? "" },
+            set: { newValue in
+                let currentDetail = sceneController.metadata(for: figurineID)?.detail ?? ""
+                sceneController.updateMetadata(for: figurineID, title: newValue, detail: currentDetail)
+            }
+        )
+    }
+    
+    private var detailBinding: Binding<String> {
+        guard metadataValue != nil else {
+            return .constant("")
+        }
+        return Binding(
+            get: { sceneController.metadata(for: figurineID)?.detail ?? "" },
+            set: { newValue in
+                let currentTitle = sceneController.metadata(for: figurineID)?.title ?? ""
+                sceneController.updateMetadata(for: figurineID, title: currentTitle, detail: newValue)
+            }
+        )
+    }
+    
+    var body: some View {
+        Group {
+            if metadataValue != nil {
+                content
+            } else {
+                ProgressView()
+                    .padding(32)
+            }
+        }
+        .frame(maxWidth: 360)
+        .background(.thinMaterial, in: .rect(cornerRadius: 16))
+        .glassBackgroundEffect()
+    }
+    
+    private var content: some View {
+        VStack(spacing: 18) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Figurine Details")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    TextField("Custom title", text: titleBinding)
+                        .font(.title3.weight(.semibold))
+                        .textFieldStyle(.plain)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+                
+                Button(action: onClose) {
+                    Image(systemName: "xmark.circle.fill")
+                        .imageScale(.large)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 12)
+            }
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Description")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                ZStack(alignment: .topLeading) {
+                    TextEditor(text: detailBinding)
+                        .frame(minHeight: 100, maxHeight: 140)
+                        .padding(10)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .scrollContentBackground(.hidden)
+                    
+                    if detailBinding.wrappedValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                        Text("Add a note or context for this figurine")
+                            .font(.footnote)
+                            .foregroundStyle(.tertiary)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 16)
+                    }
+                }
+            }
+            
+            Button(action: onMarkCompleted) {
+                Text("Mark Completed")
+                    .font(.title3.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.blue)
+        }
+        .padding(20)
     }
 }
 

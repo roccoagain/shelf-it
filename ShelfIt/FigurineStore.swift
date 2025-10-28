@@ -71,6 +71,8 @@ struct FigurineRecord: Codable, Identifiable {
     var rotation: Quat
     var scale: Vec3
     var color: HSBA
+    var displayTitle: String = ""
+    var detail: String = ""
 }
 
 struct FigurineIDComponent: Component { var id: UUID }

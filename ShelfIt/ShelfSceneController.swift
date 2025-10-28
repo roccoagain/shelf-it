@@ -9,6 +9,11 @@ class ShelfSceneController: ObservableObject {
     var sceneRoot: Entity?
     private var records: [UUID: FigurineRecord] = FigurineStore.shared.load()
     
+    struct FigurineMetadata {
+        var title: String
+        var detail: String
+    }
+    
     func initilizeScene(into content: RealityViewContent) async {
         guard sceneRoot == nil else { return }
         if let root = try? await Entity(named: "table", in: realityKitContentBundle) {
@@ -50,7 +55,7 @@ class ShelfSceneController: ObservableObject {
         guard let entity = await instantiateEntity(for: prototype, color: baseColor) else { return }
         
         let id = UUID()
-        entity.name = prototype.title + "-\(id.uuidString.prefix(6))"
+        entity.name = id.uuidString
         entity.position = [
             Float.random(in: -0.2...0.2),
             0.1,
@@ -65,7 +70,13 @@ class ShelfSceneController: ObservableObject {
         )
         
         // persist
-        records[id] = snapshot(entity: entity, prototype: prototype, id: id)
+        records[id] = snapshot(
+            entity: entity,
+            prototype: prototype,
+            id: id,
+            displayTitle: prototype.title,
+            detail: ""
+        )
         FigurineStore.shared.save(records)
     }
     
@@ -76,7 +87,14 @@ class ShelfSceneController: ObservableObject {
             var rec = records[id],
             let prototype = FigurineCatalog.prototype(for: rec.prototypeID)
         else { return }
-        rec = snapshot(entity: model, prototype: prototype, name: rec.name, id: rec.id)
+        rec = snapshot(
+            entity: model,
+            prototype: prototype,
+            name: rec.name,
+            id: rec.id,
+            displayTitle: rec.displayTitle,
+            detail: rec.detail
+        )
         records[id] = rec
         FigurineStore.shared.save(records)
     }
@@ -102,12 +120,43 @@ class ShelfSceneController: ObservableObject {
         FigurineStore.shared.save(records)
     }
 
+    func figurineID(for entity: Entity) -> UUID? {
+        entity.components[FigurineIDComponent.self]?.id
+    }
+
+    @MainActor
+    func metadata(for figurineID: UUID) -> FigurineMetadata? {
+        guard let record = records[figurineID] else { return nil }
+        let fallbackTitle = FigurineCatalog.prototype(for: record.prototypeID)?.title
+        let resolvedTitle = record.displayTitle.isEmpty ? (fallbackTitle ?? "Item") : record.displayTitle
+        return FigurineMetadata(title: resolvedTitle, detail: record.detail)
+    }
+
+    @MainActor
+    func metadata(for entity: Entity) -> FigurineMetadata? {
+        guard let id = figurineID(for: entity) else { return nil }
+        return metadata(for: id)
+    }
+
+    @MainActor
+    func updateMetadata(for figurineID: UUID, title: String, detail: String) {
+        guard var record = records[figurineID] else { return }
+        guard record.displayTitle != title || record.detail != detail else { return }
+        objectWillChange.send()
+        record.displayTitle = title
+        record.detail = detail
+        records[figurineID] = record
+        FigurineStore.shared.save(records)
+    }
+
     
     private func snapshot(
         entity: ModelEntity,
         prototype: FigurinePrototype,
         name: String? = nil,
-        id: UUID? = nil
+        id: UUID? = nil,
+        displayTitle: String? = nil,
+        detail: String? = nil
     ) -> FigurineRecord {
         let t = entity.transform
         
@@ -128,7 +177,9 @@ class ShelfSceneController: ObservableObject {
             position: Vec3(x: t.translation.x, y: t.translation.y, z: t.translation.z),
             rotation: Quat(x: t.rotation.imag.x, y: t.rotation.imag.y, z: t.rotation.imag.z, w: t.rotation.real),
             scale: Vec3(x: t.scale.x, y: t.scale.y, z: t.scale.z),
-            color: HSBA(h: Float(h), s: Float(s), b: Float(b), a: Float(a))
+            color: HSBA(h: Float(h), s: Float(s), b: Float(b), a: Float(a)),
+            displayTitle: displayTitle ?? prototype.title,
+            detail: detail ?? ""
         )
     }
     
