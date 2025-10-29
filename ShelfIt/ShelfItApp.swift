@@ -21,7 +21,7 @@ struct ShelfItApp: App {
                 .environmentObject(sceneController)
         }
         .windowStyle(.volumetric)
-        .defaultSize(width: 1.0, height: 0.6, depth: 0.6, in: .meters)
+        .defaultSize(width: 1.0, height: 1, depth: 0.6, in: .meters)
         
         WindowGroup(id: ShelfItWindowID.picker) {
             PickerPanel()

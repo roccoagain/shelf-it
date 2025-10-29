@@ -45,6 +45,8 @@ struct FigurinePrototype: Identifiable, Hashable {
 enum FigurineCatalog {
     static let all: [FigurinePrototype] = [
         FigurinePrototype(id: "robot", title: "Robot", geometry: .asset(name: "robot")),
+        FigurinePrototype(id: "trash", title: "trash", geometry: .asset(name: "trash")),
+        FigurinePrototype(id: "dog", title: "dog", geometry: .asset(name: "dog")),
         FigurinePrototype(id: "cube", title: "Cube", geometry: .primitive(.cube)),
         FigurinePrototype(id: "sphere", title: "Sphere", geometry: .primitive(.sphere)),
         FigurinePrototype(id: "cylinder", title: "Cylinder", geometry: .primitive(.cylinder))

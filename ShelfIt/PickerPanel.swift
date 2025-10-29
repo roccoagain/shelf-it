@@ -62,7 +62,7 @@ struct PickerPanel: View {
             .frame(height: gridViewportHeight)
         }
         .padding(28)
-        .frame(minWidth: 460)
+        .frame(maxWidth: 460)
         .glassBackgroundEffect(in: RoundedRectangle(cornerRadius: 36, style: .continuous))
     }
     

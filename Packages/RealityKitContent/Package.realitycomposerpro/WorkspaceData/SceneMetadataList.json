@@ -3,7 +3,8 @@
     "objectMetadataList" : [
       [
         "0A9B4653-B11E-4D6A-850E-C6FCB621626C",
-        "Root"
+        "Root",
+        "Sphere"
       ],
       {
         "isExpanded" : true,
@@ -11,8 +12,19 @@
       },
       [
         "0A9B4653-B11E-4D6A-850E-C6FCB621626C",
-        "Root",
-        "Sphere"
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  },
+  "1484298C-8FBD-46CE-9CB6-7251FC6D0D97" : {
+    "objectMetadataList" : [
+      [
+        "1484298C-8FBD-46CE-9CB6-7251FC6D0D97",
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -36,8 +48,7 @@
     "objectMetadataList" : [
       [
         "37161180-1737-48A1-BF76-E39771A9B0E5",
-        "Root",
-        "Scene"
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -45,7 +56,8 @@
       },
       [
         "37161180-1737-48A1-BF76-E39771A9B0E5",
-        "Root"
+        "Root",
+        "Scene"
       ],
       {
         "isExpanded" : true,
@@ -80,6 +92,15 @@
       [
         "606009E1-FB77-44F9-ABED-8FF371E6E927",
         "Root",
+        "Scene"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "606009E1-FB77-44F9-ABED-8FF371E6E927",
+        "Root",
         "ShelfPrototype",
         "Cube"
       ],
@@ -90,15 +111,6 @@
       [
         "606009E1-FB77-44F9-ABED-8FF371E6E927",
         "Root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "606009E1-FB77-44F9-ABED-8FF371E6E927",
-        "Root",
-        "Scene"
       ],
       {
         "isExpanded" : true,
@@ -122,6 +134,18 @@
     "objectMetadataList" : [
       [
         "70F99620-18FE-438F-B2D5-5E0DA02AB759",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      }
+    ]
+  },
+  "82358BF1-43F2-4427-B231-0E2A7BE20DFF" : {
+    "objectMetadataList" : [
+      [
+        "82358BF1-43F2-4427-B231-0E2A7BE20DFF",
         "Root"
       ],
       {

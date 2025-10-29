@@ -14,6 +14,18 @@ class ShelfSceneController: ObservableObject {
         var detail: String
     }
     
+    func figurineEntity(containing entity: Entity) -> ModelEntity? {
+        var current: Entity? = entity
+        while let candidate = current {
+            if candidate.components[FigurineIDComponent.self] != nil,
+               let model = candidate as? ModelEntity {
+                return model
+            }
+            current = candidate.parent
+        }
+        return nil
+    }
+    
     func initilizeScene(into content: RealityViewContent) async {
         guard sceneRoot == nil else { return }
         if let root = try? await Entity(named: "table", in: realityKitContentBundle) {
@@ -82,13 +94,13 @@ class ShelfSceneController: ObservableObject {
     
     func persistTransform(for entity: Entity) {
         guard
-            let id = entity.components[FigurineIDComponent.self]?.id,
-            let model = entity as? ModelEntity,
+            let figurineEntity = figurineEntity(containing: entity),
+            let id = figurineEntity.components[FigurineIDComponent.self]?.id,
             var rec = records[id],
             let prototype = FigurineCatalog.prototype(for: rec.prototypeID)
         else { return }
         rec = snapshot(
-            entity: model,
+            entity: figurineEntity,
             prototype: prototype,
             name: rec.name,
             id: rec.id,
@@ -100,10 +112,32 @@ class ShelfSceneController: ObservableObject {
     }
     
     func remove(figurine entity: Entity) {
-        guard let id = entity.components[FigurineIDComponent.self]?.id else { return }
-        entity.removeFromParent()
+        guard
+            let figurineEntity = figurineEntity(containing: entity),
+            let id = figurineEntity.components[FigurineIDComponent.self]?.id
+        else { return }
+        figurineEntity.removeFromParent()
         records.removeValue(forKey: id)
         FigurineStore.shared.save(records)
+    }
+    
+    func updatePhysicsMode(for figurine: ModelEntity, kinematic: Bool) {
+        if var body = figurine.components[PhysicsBodyComponent.self] {
+            body.mode = kinematic ? .kinematic : .dynamic
+            figurine.components[PhysicsBodyComponent.self] = body
+        } else {
+            figurine.components.set(PhysicsBodyComponent(
+                massProperties: .default,
+                material: .generate(friction: 0.6, restitution: 0.35),
+                mode: kinematic ? .kinematic : .dynamic
+            ))
+        }
+        
+        if kinematic {
+            figurine.components.remove(PhysicsMotionComponent.self)
+        } else if figurine.components[PhysicsMotionComponent.self] == nil {
+            figurine.components.set(PhysicsMotionComponent())
+        }
     }
     
     @MainActor
@@ -121,7 +155,7 @@ class ShelfSceneController: ObservableObject {
     }
 
     func figurineID(for entity: Entity) -> UUID? {
-        entity.components[FigurineIDComponent.self]?.id
+        figurineEntity(containing: entity)?.components[FigurineIDComponent.self]?.id
     }
 
     @MainActor
@@ -203,7 +237,17 @@ class ShelfSceneController: ObservableObject {
             material: .generate(friction: 0.6, restitution: 0.35),
             mode: .dynamic
         ))
+        addInputTargetsRecursively(entity)
+        if entity.components[PhysicsMotionComponent.self] == nil {
+            entity.components.set(PhysicsMotionComponent())
+        }
+    }
+    
+    private func addInputTargetsRecursively(_ entity: Entity) {
         entity.components.set(InputTargetComponent())
+        for child in entity.children {
+            addInputTargetsRecursively(child)
+        }
     }
     
     private func instantiateEntity(

@@ -21,10 +21,17 @@ struct ContentView: View {
                 
             } update: { content, attachments in
                 // Update logic if needed
-                guard let overlay = attachments.entity(for: "figurinePopup") else {return}
+                guard let overlay = attachments.entity(for: "figurinePopup") else { return }
                 if let selectedEntity = sceneController.selectedEntity {
-                    overlay.setParent(selectedEntity)
-                    overlay.position = [0,0.12,0]
+                    let parent = sceneController.sceneRoot
+                    overlay.setParent(parent ?? selectedEntity)
+                    let bounds = selectedEntity.visualBounds(relativeTo: parent ?? selectedEntity)
+                    let topCenter = SIMD3<Float>(
+                        bounds.center.x,
+                        bounds.max.y + 0.15,
+                        bounds.center.z
+                    )
+                    overlay.position = topCenter
                 } else {
                     overlay.removeFromParent()
                 }
@@ -53,24 +60,25 @@ struct ContentView: View {
                 DragGesture()
                     .targetedToAnyEntity()
                     .onChanged { value in
-                        let entity = value.entity
-                        entity.components.set(PhysicsBodyComponent(mode: .kinematic))
-                        // move entity based on drag
-                        if let parent = entity.parent {
-                            entity.position = value.convert(value.location3D, from: .local, to: parent)
-                        }
+                        guard
+                            let figurine = sceneController.figurineEntity(containing: value.entity),
+                            let parent = figurine.parent
+                        else { return }
+                        sceneController.updatePhysicsMode(for: figurine, kinematic: true)
+                        figurine.position = value.convert(value.location3D, from: .local, to: parent)
                     }
                     .onEnded { value in
-                        let entity = value.entity
-                        entity.components.set(PhysicsBodyComponent(mode: .dynamic))
-                        sceneController.persistTransform(for: entity)
+                        guard let figurine = sceneController.figurineEntity(containing: value.entity) else { return }
+                        sceneController.updatePhysicsMode(for: figurine, kinematic: false)
+                        sceneController.persistTransform(for: figurine)
                     }
             )
             .simultaneousGesture(
                 TapGesture()
                     .targetedToAnyEntity()
                     .onEnded { value in
-                        sceneController.selectedEntity = value.entity
+                        sceneController.selectedEntity = sceneController
+                            .figurineEntity(containing: value.entity)
                     }
             )
             
